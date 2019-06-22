@@ -53,14 +53,18 @@ class MangaRock():
         Follow The Thread On Reddit : https://www.reddit.com/r/codes/comments/7mdx70/need_help_decrypting_this_string/
         """
         for mri_file in glob.glob(os.path.abspath(path_to_files) + os.sep + "*.mri"):
-            data = open(mri_file, "rb").read()
+            with open(mri_file, "rb") as fp_in:
+                data = fp_in.read()
 
             n = len(data) + 7
-
             header = [82, 73, 70, 70, 255 & n, n >> 8 & 255, n >> 16 & 255, n >> 24 & 255, 87, 69, 66, 80, 86, 80, 56]
-            data = [x ^ 101 for x in data]
+            data = [ord(x) ^ 101 for x in data]
 
-            open(str(mri_file).replace(".mri", ".jpg"), 'wb').write(bytes(header + data))
+            out_bytes = bytearray(header + data)
+
+            outpath = str(mri_file).replace(".mri", ".jpg")
+            with open(outpath, 'wb') as fp_out:
+                fp_out.write(out_bytes)
 
             # Let's delete the .mri file
             os.remove(mri_file)
